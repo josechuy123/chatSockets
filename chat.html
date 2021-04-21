@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat con nodeJS y Socket.io</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="styles.css" />
+
+    <style>
+      #chatbox {
+        text-align: left;
+        margin: 0 auto;
+        margin-bottom: 25px;
+        padding: 10px;
+        background: #fff;
+        height: 270px;
+        width: 430px;
+        border: 1px solid #acd8f0;
+        overflow: auto;
+      }
+      h1,
+      p,
+      .labels {
+        font-family: arial, helvetica, roboto, "new times roman", lato;
+      }
+
+      .input {
+        border-radius: 5px;
+        text-align: left;
+        margin: 0 auto;
+        margin-bottom: 5px;
+        padding: 10px;
+        background: #fff;
+        height: 5px;
+        width: 300px;
+        border: 1px solid #acd8f0;
+        overflow: auto;
+      }
+    </style>
+
+
+
+  </head>
+  <body>
+    <h1>Chat con sockets.io</h1>
+
+    <div id="loginform">
+      <p>Ingresa tu nombre de usuario</p>
+      <label for="name" class="labels">Nombre:</label>
+      <input type="text" name="nombre" id="nombre" class="input" />
+      <input type="button" name="enviar" id="enviar-nombre" value="Entrar" />
+    </div>
+
+    <div id="wrapper">
+      <div id="menu">
+        <p class="bienvenido">Bienvenido, <b id="usernameTag"></b></p>
+        <p class="logout"><a id="exit" href="#">Salir del chat</a></p>
+      </div>
+    </div>
+
+    <div id="chatbox">
+      <form name="message" action="">
+        <input type="text" name="usermsg" id="mensaje" size="63" />
+        <input
+          type="button"
+          name="submitmsg"
+          id="enviarMensaje"
+          value="Enviar Mensaje"
+        />
+      </form>
+    </div>
+  </body>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket = io();
+
+    $(document).ready(function () {
+      $("#wrapper").hide();
+
+      $("#enviar-nombre").click(function () {
+        if ($("#nombre").val().length <= 0) {
+          alert("ingresa tu nombre de usuario");
+        } else {
+          let username = $("#nombre").val();
+          socket.emit("createUser", username);
+          $("#wrapper").show();
+          $("#loginform").hide();
+          $("#usernameTag").append(username);
+        }
+      });
+      /*
+      $("#enviarMensaje").click(function () {
+        let mensaje = $("#mensaje").val();
+        socket.emit("msjNuevo", mensaje);
+        console.log(mensaje);
+      }); */
+
+      $("#enviarMensaje").click(function () {
+        var mensaje = $("#mensaje").val();
+        socket.emit("mjsNuevo", mensaje); // Enviamos el nuevo mensaje a la función de mensaje nuevo.
+      });
+
+      socket.on("mensaje", function (data) {
+        let nuevoMensaje = "<b>" + data.usuario + " dice: " + data.mensaje;
+        $("#chatbox").append(nuevoMensaje + "</br>");
+      });
+    });
+  </script>
+</html>
